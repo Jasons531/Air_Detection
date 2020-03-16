@@ -43,6 +43,9 @@ void vKeyInit(void)
   */
 void vKeyStandbyMode(void)
 {	
+	vTm1622Close( );
+	vUppBoradDeInit(); ///关闭时钟线
+	
 	__HAL_RCC_PWR_CLK_ENABLE();		
 	__HAL_RTC_WRITEPROTECTION_DISABLE(&hrtc);//关闭RTC写保护
 	
@@ -122,32 +125,7 @@ bool bKeyStandbyCheckPwrkey(void)
 				return false;									
 										//按下时间太短，不是按键长按操作
 			}
-		}
-//		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0) == GPIO_PIN_SET)
-//		{
-//			downCnt++;																//记录按下次数			
-//			upCnt=0;
-//		}
-//		else
-//		{
-//			upCnt++; 																//记录释放次数
-//			if(upCnt>5)	
-//			{
-//				DEBUG_APP(2,"按下时间不足");
-//				while(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0) == GPIO_PIN_SET);
-//				return false;
-//			}
-//				
-//		}
-//		HAL_Delay(20);	
-//		if(downCnt>=50)	
-//		{
-//			DEBUG_APP(2,"长按电源按钮");
-//			
-//			while(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0) == GPIO_PIN_SET);
-//			return true;
-//		}
-			
+		}		
 	}
 }
 

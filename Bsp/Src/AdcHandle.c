@@ -82,6 +82,9 @@ float fAdcMQ(void)
 {
 	uint16_t usAdcBuf[2] = {0};
 	
+	HAL_GPIO_WritePin(GPIOB, MQ7_CTL_Pin, GPIO_PIN_SET);
+	HAL_Delay(3000);
+	
 	usAdcBuf[0] = ulAdcReadParameter(ADC_CHANNEL_6, 10);
 	float fBattery = adcVREFINT_CAL_VREF*(*adcVREFINT_CAL_ADDR)*usAdcBuf[0]; 
 	usAdcBuf[1] = ulAdcReadParameter(ADC_CHANNEL_VREFINT, 10);
@@ -89,5 +92,6 @@ float fAdcMQ(void)
 	DEBUG_APP(2, "BAT = %d adc17 = %d , adc0 = %d, MQ = %.2fmV", *adcVREFINT_CAL_ADDR,  usAdcBuf[1], usAdcBuf[0], (fBattery/fAdcTemp)*1000);  ///100:510	
 	DEBUG_APP(2, "MQ-7 = %.2f",fBattery/fAdcTemp);
 
+	HAL_GPIO_WritePin(GPIOB, MQ7_CTL_Pin, GPIO_PIN_RESET);
 	return (fBattery/fAdcTemp);
 }

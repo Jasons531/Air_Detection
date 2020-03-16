@@ -59,6 +59,8 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
+#define BEEP GPIO_PIN_8
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

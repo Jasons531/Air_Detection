@@ -115,7 +115,7 @@ int main(void)
   
   vKeyInit( );
  
-  vKeyWorkStatusJudgment(  );
+//  vKeyWorkStatusJudgment(  );
   vUappSensorInit( );
   
   /* USER CODE END 2 */
@@ -128,26 +128,37 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  
-	  vUppSensorDisplay( ); 
+//	  vUppSensorDisplay( ); 
+//	  for(uint8_t uci = 0; uci < 10; uci++)
+	  {
+		HAL_GPIO_WritePin(GPIOB,BEEP, GPIO_PIN_SET);
+		HAL_Delay(100);
+		HAL_GPIO_WritePin(GPIOB,BEEP, GPIO_PIN_RESET);
+		HAL_Delay(100);
+		HAL_GPIO_WritePin(GPIOB,BEEP, GPIO_PIN_SET);
+		HAL_Delay(100);
+	    HAL_GPIO_WritePin(GPIOB,BEEP, GPIO_PIN_RESET);
+		HAL_Delay(600);
+	  }
 	/**** 按键短按屏幕显示，同时恢复RTC时间休眠 ****/
-	if(bRtcSleepMode)
-	{
-		bRtcSleepMode = false;
-		if(ulCurrentSleepTime>0)
-		{
-			bUserAppSleep = true;
-			vUppSensorDisplay( ); 
-			vUppRtcAlarm(ulCurrentSleepTime);
-			vUppIntoLowPower( );
-		}
-	}
-	else
-	{
-		printf("welcome\r\n");
-		bUserAppSleep = true;
-		vUppRtcAlarm(30);
-		vUppIntoLowPower( );
-	} 
+//	if(bRtcSleepMode)
+//	{
+//		bRtcSleepMode = false;
+//		if(ulCurrentSleepTime>0)
+//		{
+//			bUserAppSleep = true;
+//			vUppSensorDisplay( ); 
+//			vUppRtcAlarm(ulCurrentSleepTime);
+//			vUppIntoLowPower( );
+//		}
+//	}
+//	else
+//	{
+//		printf("welcome\r\n");
+//		bUserAppSleep = true;
+//		vUppRtcAlarm(30);
+//		vUppIntoLowPower( );
+//	} 
 //	HAL_Delay(3000);
 	  
   }

@@ -22,6 +22,7 @@
 #include "I2C.h"
 
 void vAhtReset(void);
+void vAhtSleep(void);
 void vAhtConfig(void);
 void vAhtMeasure(void);
 uint8_t ucAhtReadStatus(void);

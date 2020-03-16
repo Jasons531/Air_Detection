@@ -64,9 +64,9 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin 
                            PBPin PBPin */
   GPIO_InitStruct.Pin = MQ7_CTL_Pin|PMC7003_RST_Pin|PMC7003_SET_Pin|KQ6600_F_Pin 
-                          |LCD_BACK_Pin|LCD_DATA_Pin;
+                          |LCD_BACK_Pin|LCD_DATA_Pin|BEEP;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 

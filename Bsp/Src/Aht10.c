@@ -32,6 +32,18 @@ void vAhtReset(void)
 }
 
 /**
+  * 函数功能：休眠
+  * 输入参数：无
+  * 返 回 值：无
+  * 说    明：
+  */
+void vAhtSleep(void)
+{
+	uint8_t ucAhtCmd = 0x00;
+	HAL_I2C_Master_Transmit(&hi2c1,(uint16_t)aht10ADDR,&ucAhtCmd,1,0xFFFF);
+}
+
+/**
   * 函数功能：写系统配置寄存器
   * 输入参数：无
   * 返 回 值：无

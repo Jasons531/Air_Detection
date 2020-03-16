@@ -182,6 +182,7 @@ void vUppGetHCHODisplay(uint8_t *ucKQBuf)
 	while(1)
 	{
 		vKQReadSensor(ucKQBuf);
+		
 		DEBUG_APP(2,"ucKQBuf = %02X %02X",ucKQBuf[0],ucKQBuf[1]);
 		if(ucKQBuf[0] != 0xff)
 		{
@@ -199,6 +200,8 @@ void vUppGetHCHODisplay(uint8_t *ucKQBuf)
 			vHCHODisplay(5,  fHcho/100); ///百位
 			vHCHODisplay(3,  fHcho%100/10); ///十位
 			vHCHODisplay(1,  fHcho%10); ///个位
+			
+			vKQSleep( );
 			return;
 		}
 		else
@@ -241,6 +244,7 @@ void vUppGetAhtDisplay(int8_t *ctBuf)
 		}	
 		vAht10TempDisplay(35, ctBuf[0]/10); ///十位
 		vAht10TempDisplay(33, ctBuf[0]%10); ///个位
+		vAhtSleep( );
 	}
 	else
 	{
@@ -270,10 +274,11 @@ void vUppGetPMS7003Display(void)
 	/**** 接收数据5S超时 ****/
 	while(xPMCUart.ucLen == 0 && (HAL_GetTick()-ulOvertime<5000));
 	
+	HAL_GPIO_WritePin(GPIOB, PMC7003_SET_Pin, GPIO_PIN_RESET);
+	
 	memcpy(ucSensorBuf, xPMCUart.ucSensorBuf,xPMCUart.ucLen);
 	ucLen = xPMCUart.ucLen;
 	xPMCUart.ucLen = 0;	 
-	HAL_GPIO_WritePin(GPIOB, PMC7003_SET_Pin, GPIO_PIN_RESET);
 	
 	DEBUG_APP(2,"ucLen = %d",ucLen);
 	if(ucLen == 32)
@@ -325,7 +330,7 @@ void vUppSensorDisplay(void)
 	vUppGetAhtDisplay(ctBuf);
 	vUppGetPMS7003Display( );
 	vUppGetHCHODisplay(ucKQBuf);
-	HAL_Delay(5000);
+	HAL_Delay(2000);
 }
 
 /**
