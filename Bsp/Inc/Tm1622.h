@@ -20,6 +20,8 @@
 #include <stdint.h>	
 		
 void init_tm1622(void);
+		
+void vTm1622Close(void);
 
 void write_cmd_100(unsigned char cmd);
 		

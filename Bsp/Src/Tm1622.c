@@ -38,6 +38,19 @@ void init_tm1622(void)
 }
 
 /**
+  * 函数功能: 关闭TM1622 LCD显示
+  * 输入参数: 无
+  * 返 回 值: 无
+  * 说    明: 无
+  */
+void vTm1622Close(void)
+{
+	HAL_GPIO_WritePin(GPIOB, LCD_BACK_Pin, GPIO_PIN_RESET);
+	write_cmd_100(0x00);  //关闭系统振荡器
+	write_cmd_100(0x02);  //关闭LCD显示
+}
+	
+/**
   * 函数功能: 读取电池电量
   * 输入参数: 无
   * 返 回 值: 电量百分比

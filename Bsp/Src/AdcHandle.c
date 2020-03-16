@@ -25,7 +25,7 @@ uint8_t ucAdcBattery(void)
 	float fBattery = adcVREFINT_CAL_VREF*(*adcVREFINT_CAL_ADDR)*usAdcBuf[0]; 
 	usAdcBuf[1] = ulAdcReadParameter(ADC_CHANNEL_VREFINT, 10);
 	float fAdcTemp = usAdcBuf[1] * adcVFULL;
-	DEBUG_APP(2, "BAT = %d adc17 = %d , adc0 = %d, VBAT = %.2fmV", *adcVREFINT_CAL_ADDR,  usAdcBuf[1], usAdcBuf[0], (fBattery/fAdcTemp));  	
+	DEBUG_APP(2, "BAT = %d adc17 = %d , adc0 = %d, VBAT = %.2fV", *adcVREFINT_CAL_ADDR,  usAdcBuf[1], usAdcBuf[0], (fBattery/fAdcTemp));  	
 	cBatteryPercent = (((fBattery/fAdcTemp)*1400) > 3600)?((((fBattery/fAdcTemp)*1400)- 3600)/6):0;
 	DEBUG_APP(2, "fBattery = %.2f cBatteryPercent = %d",((fBattery/fAdcTemp)*1400),cBatteryPercent);
 	if(cBatteryPercent >= 100)

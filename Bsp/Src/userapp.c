@@ -26,6 +26,8 @@ void vUappSensorInit(void)
 	vKQInit( );
 	vPMC7003Init(  );	
 	bAhtInit(  );
+	init_tm1622(); 
+    vStaticDisplay( );
 }
 
 /**
@@ -473,13 +475,14 @@ void vUppBoradDeInit(void)
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; 
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 					
-	GPIO_InitStructure.Pin = 0xDFFF;  /// PB13£ºKQ66_F
-	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+//	GPIO_InitStructure.Pin = 0xDFFF;  /// PB13£ºKQ66_F
+//	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+//	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+//	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
+//	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	HAL_SuspendTick();
 	__HAL_RCC_GPIOB_CLK_DISABLE();
@@ -494,6 +497,7 @@ void vUppBoradDeInit(void)
   */
 void vUppIntoLowPower(void)
 {
+	vTm1622Close( );
 	vUppBoradDeInit(); ///¹Ø±ÕÊ±ÖÓÏß
     	
 	SET_BIT( PWR->CR, PWR_CR_CWUF );

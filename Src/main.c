@@ -118,9 +118,6 @@ int main(void)
   vKeyWorkStatusJudgment(  );
   vUappSensorInit( );
   
-  init_tm1622(); 
-  vStaticDisplay( );
-  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -151,6 +148,7 @@ int main(void)
 		vUppRtcAlarm(30);
 		vUppIntoLowPower( );
 	} 
+//	HAL_Delay(3000);
 	  
   }
   /* USER CODE END 3 */
