@@ -1,0 +1,4 @@
+MDK-ARM/code/*
+MDK-ARM/code.uvo*
+MDK-ARM/code.uvg*
+MDK-ARM/startup_stm32f070xb.lst
