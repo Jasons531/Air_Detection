@@ -53,6 +53,8 @@ void vUppGetPMS7003Display(void);
 
 void vUppSensorDisplay(void);
 
+void vUppBeepDisplay(void);
+
 uint32_t ulUppGetCurrentSleepRtc(void);
 
 void vUppRtcAlarm(uint16_t ulTime);

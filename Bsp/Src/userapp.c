@@ -334,6 +334,45 @@ void vUppSensorDisplay(void)
 }
 
 /**
+  * 函数功能: 蜂鸣器声音
+  * 输入参数: 无
+  * 返 回 值: 无
+  * 说    明: 
+  */
+void vUppBeepDisplay(void)
+{
+	uint16_t pwmVal=0;   //PWM占空比  
+    uint8_t dir=1;
+	for(uint8_t ucTime = 0; ucTime < 5; ++ucTime)
+    {
+		/*****  输出低脉冲有效 450实际有效50 占空比是10% *****/
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 450);
+		HAL_Delay(100);
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 500);
+		HAL_Delay(100);
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 450);
+		HAL_Delay(100);
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 500);
+		HAL_Delay(600);
+		
+#if 0 ///呼吸灯节奏		
+		while (pwmVal< 500)
+		{
+		  pwmVal++;
+		  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
+		  HAL_Delay(1);
+		}
+		while (pwmVal)
+		{
+		  pwmVal--;
+		  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
+		  HAL_Delay(1);
+		}
+#endif
+	}	
+}
+
+/**
   * 函数功能: 意外唤醒触发，重新获取休眠时间
   * 输入参数: 无
   * 返 回 值: 无
@@ -480,14 +519,13 @@ void vUppBoradDeInit(void)
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; 
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 					
-//	GPIO_InitStructure.Pin = 0xDFFF;  /// PB13：KQ66_F
-//	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
-//	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-//	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
-//	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitStructure.Pin = 0xDFF8;  /// PB13：KQ66_F
+	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	HAL_SuspendTick();
 	__HAL_RCC_GPIOB_CLK_DISABLE();
