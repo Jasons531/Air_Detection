@@ -27,7 +27,7 @@ extern xKQUart_t xKQUart;
 void vKQInit(void);
 void vKQSleep(void);
 void vKQWakeup(void);
-void vKQReadSensor(uint8_t ucKQBuf[2]);
+void vKQReadSensor(uint8_t ucKQBuf[4]);
 		
 #ifdef __cplusplus
 }

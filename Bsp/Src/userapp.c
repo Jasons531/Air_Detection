@@ -179,6 +179,7 @@ void vUppGetCODisplay(void)
 void vUppGetHCHODisplay(uint8_t *ucKQBuf)
 {
 	uint32_t ulOverTime = HAL_GetTick();
+	uint8_t fHcho = 0;
 	while(1)
 	{
 		vKQReadSensor(ucKQBuf);
@@ -186,17 +187,18 @@ void vUppGetHCHODisplay(uint8_t *ucKQBuf)
 		DEBUG_APP(2,"ucKQBuf = %02X %02X",ucKQBuf[0],ucKQBuf[1]);
 		if(ucKQBuf[0] != 0xff)
 		{
-			uint8_t fHcho = (ucKQBuf[0]<<8)|ucKQBuf[1];
+			fHcho = (ucKQBuf[0]<<8)|ucKQBuf[1];
 			/*****/
 		//	X ppm = (Y mg/m3)(24.45)/(分子量 = 30.026 g/mol)
 		//或
 		//Y mg/m3 = (X ppm)(分子量)/24.45
-			
+			fHcho *= 1.23;
 			vTVOCDisplay(27, fHcho/100); ///百位
 			vTVOCDisplay(29, fHcho%100/10); ///十位
 			vTVOCDisplay(31, fHcho%10); ///个位  
 	//		fHcho = fHcho/10*22.4/24.45;
-			fHcho *= 1.23; 
+			 
+			fHcho = (ucKQBuf[2]<<8)|ucKQBuf[3];
 			vHCHODisplay(5,  fHcho/100); ///百位
 			vHCHODisplay(3,  fHcho%100/10); ///十位
 			vHCHODisplay(1,  fHcho%10); ///个位
@@ -323,7 +325,7 @@ void vUppGetPMS7003Display(void)
   */
 void vUppSensorDisplay(void)
 {
-	uint8_t ucKQBuf[2] = {0xff, 0xff};
+	uint8_t ucKQBuf[4] = {0xff, 0xff, 0xff, 0xff};
 	int8_t  ctBuf[2];
 	vUppGetBatDisplay( ); 
 	vUppGetCODisplay( );	  
@@ -341,8 +343,6 @@ void vUppSensorDisplay(void)
   */
 void vUppBeepDisplay(void)
 {
-	uint16_t pwmVal=0;   //PWM占空比  
-    uint8_t dir=1;
 	for(uint8_t ucTime = 0; ucTime < 5; ++ucTime)
     {
 		/*****  输出低脉冲有效 450实际有效50 占空比是10% *****/
@@ -356,6 +356,7 @@ void vUppBeepDisplay(void)
 		HAL_Delay(600);
 		
 #if 0 ///呼吸灯节奏		
+		uint16_t pwmVal=0;   //PWM占空比  
 		while (pwmVal< 500)
 		{
 		  pwmVal++;
