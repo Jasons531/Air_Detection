@@ -61,19 +61,27 @@ void Error_Handler(void);
 
 #define BEEP GPIO_PIN_8
 
+#define BAT_CHARG_Pin GPIO_PIN_1
+#define BAT_CHARG_GPIO_Port GPIOA
+
+#define EN_5V_Pin GPIO_PIN_4
+#define EN_5V_GPIO_Port GPIOA
+
+#define BOARD_POWER_Pin GPIO_PIN_5
+#define BOARD_POWER_GPIO_Port GPIOA
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define SW_Pin GPIO_PIN_4
-#define SW_GPIO_Port GPIOA
+
 #define MQ7_CTL_Pin GPIO_PIN_0
 #define MQ7_CTL_GPIO_Port GPIOB
 #define PMC7003_RST_Pin GPIO_PIN_1
 #define PMC7003_RST_GPIO_Port GPIOB
 #define PMC7003_SET_Pin GPIO_PIN_2
 #define PMC7003_SET_GPIO_Port GPIOB
-#define KQ6600_F_Pin GPIO_PIN_13
-#define KQ6600_F_GPIO_Port GPIOB
+#define MQ7_EV_Pin GPIO_PIN_13
+#define MQ7_EV_GPIO_Port GPIOB
 #define LCD_BACK_Pin GPIO_PIN_14
 #define LCD_BACK_GPIO_Port GPIOB
 #define LCD_DATA_Pin GPIO_PIN_15

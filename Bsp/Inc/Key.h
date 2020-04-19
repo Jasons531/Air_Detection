@@ -29,6 +29,10 @@ void vKeyStandbyMode(void);
 bool bKeyStandbyCheckPwrkey(void);
 
 void vKeyWorkStatusJudgment(void);
+		
+extern void vTm1622Close(void);
+
+extern void vUppBoradDeInit(void);		
 
 #ifdef __cplusplus
 }

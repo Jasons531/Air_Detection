@@ -25,30 +25,6 @@ void vKQInit(void)
 	
 	HAL_UART_AbortReceive_IT(&usartKQ6600);
 	HAL_UART_Receive_IT(&usartKQ6600, xKQUart.ucRxBuf, RX_MAX_LEN );
-	vKQWakeup( );
-}
-
-/**
-  * 函数功能：设置KQ模块休眠
-  * 输入参数：无
-  * 返 回 值：无
-  * 说    明：当设备关机休眠时使用，F脚拉低3S进入休眠，唤醒需要重新预热
-  */
-void vKQSleep(void)
-{
-	HAL_GPIO_WritePin(GPIOB, KQ6600_F_Pin, GPIO_PIN_RESET);
-	HAL_Delay(3000);
-}
-
-/**
-  * 函数功能：设置KQ模块唤醒
-  * 输入参数：无
-  * 返 回 值：无
-  * 说    明：唤醒后需要重新预热
-  */
-void vKQWakeup(void)
-{
-	HAL_GPIO_WritePin(GPIOB, KQ6600_F_Pin, GPIO_PIN_SET);
 }
 
 /**

@@ -65,6 +65,10 @@ extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
+/**** ³äµç×´Ì¬ ****/
+uint8_t cChargBatteryPercent = 0;
+uint16_t usTimCounter = 0;
+
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -182,7 +186,14 @@ void TIM16_IRQHandler(void)
   /* USER CODE END TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim16);
   /* USER CODE BEGIN TIM16_IRQn 1 */
-
+  usTimCounter ++;
+  if(usTimCounter>=1400) ///700ms
+  {
+	usTimCounter = 0;
+	cChargBatteryPercent ++;
+	vUppChargBatDisplay(&cChargBatteryPercent);
+  }
+  
   /* USER CODE END TIM16_IRQn 1 */
 }
 

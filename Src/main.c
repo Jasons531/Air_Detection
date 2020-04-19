@@ -72,12 +72,13 @@ extern bool bRtcSleepMode;
 
 /**
   * @brief  The application entry point.
+  * 报警设置: CO>50 甲醛>0.1
   * @retval int
   */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  bool bSleepMode = false;
   /* USER CODE END 1 */
   
 
@@ -111,13 +112,21 @@ int main(void)
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(1000);
+
+  BOARD_POWER_EN;
+  POWER_5V_EN;
+  
+  /**** CO 5V 加热 ****/
+  MQ7_5V_EN;
+  ulMQ5vHeatTime = HAL_GetTick();
   
   HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);
+  HAL_TIM_Base_Start_IT(&htim16);
   printf("hello world\r\n");
   
-  vKeyInit( );
- 
-  vKeyWorkStatusJudgment(  );
+//  vKeyInit( );
+// 
+//  vKeyWorkStatusJudgment(  );
   vUappSensorInit( );
  
   /* USER CODE END 2 */
@@ -129,8 +138,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  
-	  vUppSensorDisplay( ); 
+	 DEBUG_APP(2,"Bat_Charg = %d",HAL_GPIO_ReadPin(BAT_CHARG_GPIO_Port, BAT_CHARG_Pin));
+	 bSleepMode = bUppSensorDisplay( ); 
+	 vUppBeepDisplay( );
 
 	/**** 按键短按屏幕显示，同时恢复RTC时间休眠 ****/
 	if(bRtcSleepMode)
@@ -139,18 +149,23 @@ int main(void)
 		if(ulCurrentSleepTime>0)
 		{
 			bUserAppSleep = true;
-			vUppSensorDisplay( ); 
-			vUppRtcAlarm(ulCurrentSleepTime);
-			vUppIntoLowPower( );
+			if(bUppSensorDisplay( ))
+			{
+				vUppRtcAlarm(ulCurrentSleepTime);
+				vUppIntoLowPower( );
+			}		
 		}
 	}
 	else
 	{
 		printf("welcome\r\n");
 		bUserAppSleep = true;
-//		vUppRtcAlarm(60);
-//		vUppIntoLowPower( );
-		HAL_Delay(2000);
+		if(bSleepMode)
+		{
+			bSleepMode = false;
+			vUppRtcAlarm(60);
+			vUppIntoLowPower( );
+		}
 	}  
 	
   }

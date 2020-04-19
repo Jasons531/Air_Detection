@@ -22,7 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 
-//48MHZ 2KHZ
+//48MHZ 2kHZ
 //htim16.Init.Prescaler = 47+1;
 // htim16.Init.Period = 499+1;
 
@@ -74,7 +74,6 @@ void MX_TIM16_Init(void)
     Error_Handler();
   }
   HAL_TIM_MspPostInit(&htim16);
-
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)

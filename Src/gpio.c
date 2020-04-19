@@ -49,21 +49,27 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, MQ7_CTL_Pin|PMC7003_RST_Pin|PMC7003_SET_Pin|KQ6600_F_Pin 
+  HAL_GPIO_WritePin(GPIOB, MQ7_CTL_Pin|PMC7003_RST_Pin|PMC7003_SET_Pin|MQ7_EV_Pin 
                           |LCD_BACK_Pin|LCD_DATA_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LCD_WR_Pin|LCD_RD_Pin|LCD_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(EN_5V_GPIO_Port, EN_5V_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PA0 PAPin */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|SW_Pin;
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  
+  GPIO_InitStruct.Pin = BAT_CHARG_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin 
                            PBPin PBPin */
-  GPIO_InitStruct.Pin = MQ7_CTL_Pin|PMC7003_RST_Pin|PMC7003_SET_Pin|KQ6600_F_Pin 
+  GPIO_InitStruct.Pin = MQ7_CTL_Pin|PMC7003_RST_Pin|PMC7003_SET_Pin|MQ7_EV_Pin 
                           |LCD_BACK_Pin|LCD_DATA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -71,7 +77,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin PAPin */
-  GPIO_InitStruct.Pin = LCD_WR_Pin|LCD_RD_Pin|LCD_CS_Pin;
+  GPIO_InitStruct.Pin = EN_5V_Pin|BOARD_POWER_Pin|LCD_WR_Pin|LCD_RD_Pin|LCD_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

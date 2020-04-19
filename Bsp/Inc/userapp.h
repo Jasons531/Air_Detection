@@ -37,13 +37,19 @@ extern USERAPPSENSOR_t xUserappSensor;
 
 extern uint32_t ulCurrentSleepTime;
 
+extern bool bSensorWarning;
+
+void vUppChargBatDisplay(uint8_t *cBatteryPercent);
+
 void vUappSensorInit(void);
 
 void vUapp_IdleCpltCallback( UART_HandleTypeDef * huart );
 
 void vUppGetBatDisplay(void);
 
-void vUppGetCODisplay(void);
+void vUppChargBatDisplay(uint8_t *cBatteryPercent);
+
+bool bUppGetCODisplay(void);
 
 void vUppGetHCHODisplay(uint8_t *ucKQBuf);
 
@@ -51,7 +57,7 @@ void vUppGetAhtDisplay(int8_t *ctBuf);
 
 void vUppGetPMS7003Display(void);
 
-void vUppSensorDisplay(void);
+bool bUppSensorDisplay(void);
 
 void vUppBeepDisplay(void);
 

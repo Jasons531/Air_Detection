@@ -15,6 +15,15 @@ USERAPPSENSOR_t xUserappSensor;
 /**** RTC当前休眠计数 ****/
 uint32_t ulCurrentSleepTime = 0;
 
+/**** 用于上电第一次校准CO R0数据 *****/
+bool bUserPowerUp = false;
+
+/**** CO R0数据 *****/
+float fR0 = 0;
+
+/**** 传感器数据报警标志 *****/
+bool bSensorWarning = false;
+
 /**
   * 函数功能：传感器初始化
   * 输入参数：无
@@ -109,9 +118,36 @@ void vUppGetBatDisplay(void)
 		cBatteryPercent = 0;
 	}
 	DEBUG_APP(2, "cBatteryPercent = %d",cBatteryPercent);
-	vBatDisplay(cBatteryPercent);
+	
+	/**** 没充电时候显示状态 ****/
+	if(GPIO_PIN_SET == HAL_GPIO_ReadPin(BAT_CHARG_GPIO_Port, BAT_CHARG_Pin))
+	{
+		vBatDisplay(cBatteryPercent);
+	}	
 }
 
+
+/**
+  * 函数功能：电池充电显示
+  * 输入参数：无
+  * 返 回 值：无
+  * 说    明：无
+  */
+void vUppChargBatDisplay(uint8_t *cBatteryPercent)
+{
+	if(GPIO_PIN_RESET == HAL_GPIO_ReadPin(BAT_CHARG_GPIO_Port, BAT_CHARG_Pin))
+	{
+		vBatDisplay((*cBatteryPercent-1)*25);
+		if(5 == *cBatteryPercent)
+		{
+			*cBatteryPercent = 0;
+		}
+	}	
+	else
+	{
+		*cBatteryPercent = 0;
+	}
+}
 
 #define CAL_PPM  10  // 校准环境中PPM值
 #define RL		 100  // RL阻值
@@ -144,30 +180,66 @@ static float MQ7_PPM_Calibration(float RS)
 /**
   * 函数功能：一氧化碳数据显示
   * 输入参数：无
-  * 返 回 值：无
+  * 返 回 值：采集状态
   * 说    明：无
   */
-void vUppGetCODisplay(void)
+bool bUppGetCODisplay(void)
 {	
-	float fVrl = fAdcMQ();
-	
-	if(fVrl>0)
+	if(!bMQHeatStart && (HAL_GetTick() - ulMQ5vHeatTime > MQ_5V_HEAT_TIME))
 	{
-		float fRS = (3.3f - fVrl) / fVrl * RL;
-		float fR0 = MQ7_PPM_Calibration(fRS);
-		float fPpm = 98.322f * pow(fRS/fR0, -1.458f);
-		DEBUG_APP(2,"fPpm = %.2f",fPpm);
+		MQ7_5V_DIS;
+		MQ7_1V5_EN;
+		ulMQ1v5HeatTime = HAL_GetTick();
+		ulMQ5vHeatTime = HAL_GetTick();
 		
-		vCODisplay(45, fPpm/100);  ///百位
-		vCODisplay(43, (uint8_t)fPpm%100/10);  ///十位
-		vCODisplay(41, (uint8_t)fPpm%10);  ///个位
-	}
-	else
-	{
-		vCODisplay(45, 10);  ///百位
-		vCODisplay(43, 10);  ///十位
-		vCODisplay(41, 10);  ///个位
+		bMQHeatStart = true;
+		bMQHeatDone = true;		
+		DEBUG_APP(2,"**** bMQHeatDone ****");
 	}	
+	if(bMQHeatDone && (HAL_GetTick() - ulMQ1v5HeatTime > MQ_1V5_HEAT_TIME))
+	{
+		DEBUG_APP(2,"**** ulMQ1v5HeatTime ****");
+		bMQHeatDone = false;
+		bMQHeatStart = false;
+		ulMQ1v5HeatTime = HAL_GetTick();
+		ulMQ5vHeatTime = HAL_GetTick();
+		float fVrl = fAdcMQ();
+		MQ7_1V5_DIS;
+		if(fVrl>0)
+		{
+			float fRS = (3.3f - fVrl) / fVrl * RL;
+			
+			if(!bUserPowerUp)
+			{
+				bUserPowerUp = true;
+				fR0 = MQ7_PPM_Calibration(fRS);
+//				fR0 = 0.34; ///根据测试空气数据取值，后期可以采用自动再次校准
+				DEBUG_APP(2,"**** Calibration fR0 = %.2f ****",fR0);
+			}
+			if(fR0>0)
+			{
+				float fPpm = 98.322f * pow(fRS/fR0, -1.458f);
+				DEBUG_APP(2,"fR0 = %.2f fPpm = %.2f",fR0,fPpm);
+				
+				vCODisplay(45, fPpm/100);  ///百位
+				vCODisplay(43, (uint8_t)fPpm%100/10);  ///十位
+				vCODisplay(41, (uint8_t)fPpm%10);  ///个位
+				
+				if(fPpm>50)
+				{
+					bSensorWarning = true;
+				}
+				
+				HAL_Delay(2000);
+				return true;
+			}		
+		}
+	}
+	vCODisplay(45, 10);  ///百位
+	vCODisplay(43, 10);  ///十位
+	vCODisplay(41, 10);  ///个位
+	
+	return false;
 }
 
 /**
@@ -178,47 +250,42 @@ void vUppGetCODisplay(void)
   */
 void vUppGetHCHODisplay(uint8_t *ucKQBuf)
 {
-	uint32_t ulOverTime = HAL_GetTick();
 	uint8_t fHcho = 0;
-	while(1)
-	{
-		vKQReadSensor(ucKQBuf);
+	vKQReadSensor(ucKQBuf);
 		
-		DEBUG_APP(2,"ucKQBuf = %02X %02X",ucKQBuf[0],ucKQBuf[1]);
-		if(ucKQBuf[0] != 0xff)
+	DEBUG_APP(2,"ucKQBuf = %02X %02X",ucKQBuf[0],ucKQBuf[1]);
+	if(ucKQBuf[0] != 0xff)
+	{
+		fHcho = (ucKQBuf[0]<<8)|ucKQBuf[1];
+		/*****/
+	//	X ppm = (Y mg/m3)(24.45)/(分子量 = 30.026 g/mol)
+	//或
+	//Y mg/m3 = (X ppm)(分子量)/24.45
+		fHcho *= 1.23;
+		vTVOCDisplay(27, fHcho/100); ///百位
+		vTVOCDisplay(29, fHcho%100/10); ///十位
+		vTVOCDisplay(31, fHcho%10); ///个位  
+//		fHcho = fHcho/10*22.4/24.45;
+		 
+		fHcho = (ucKQBuf[2]<<8)|ucKQBuf[3];
+		vHCHODisplay(5,  fHcho/100); ///百位
+		vHCHODisplay(3,  fHcho%100/10); ///十位
+		vHCHODisplay(1,  fHcho%10); ///个位		
+		
+		if(fHcho>10)
 		{
-			fHcho = (ucKQBuf[0]<<8)|ucKQBuf[1];
-			/*****/
-		//	X ppm = (Y mg/m3)(24.45)/(分子量 = 30.026 g/mol)
-		//或
-		//Y mg/m3 = (X ppm)(分子量)/24.45
-			fHcho *= 1.23;
-			vTVOCDisplay(27, fHcho/100); ///百位
-			vTVOCDisplay(29, fHcho%100/10); ///十位
-			vTVOCDisplay(31, fHcho%10); ///个位  
-	//		fHcho = fHcho/10*22.4/24.45;
-			 
-			fHcho = (ucKQBuf[2]<<8)|ucKQBuf[3];
-			vHCHODisplay(5,  fHcho/100); ///百位
-			vHCHODisplay(3,  fHcho%100/10); ///十位
-			vHCHODisplay(1,  fHcho%10); ///个位
-			
-			vKQSleep( );
-			return;
+			bSensorWarning = true;
 		}
-		else
-		{
-			vTVOCDisplay(27, 10); ///百位
-			vTVOCDisplay(29, 10); ///十位
-			vTVOCDisplay(31, 10); ///个位  
-			vHCHODisplay(5,  100); ///百位
-			vHCHODisplay(3,  10); ///十位
-			vHCHODisplay(1,  10); ///个位
-			
-			if(HAL_GetTick()-ulOverTime>100000)
-				return;
-		}
-		HAL_Delay(1000);
+		return;
+	}
+	else
+	{
+		vTVOCDisplay(27, 10); ///百位
+		vTVOCDisplay(29, 10); ///十位
+		vTVOCDisplay(31, 10); ///个位  
+		vHCHODisplay(5,  100); ///百位
+		vHCHODisplay(3,  10); ///十位
+		vHCHODisplay(1,  10); ///个位
 	}
 }
  
@@ -320,19 +387,27 @@ void vUppGetPMS7003Display(void)
 /**
   * 函数功能: 传感器数据显示
   * 输入参数: 无
-  * 返 回 值: 无
+  * 返 回 值: 采集状态
   * 说    明: 
   */
-void vUppSensorDisplay(void)
+bool bUppSensorDisplay(void)
 {
+	bool bGetSensorDone = false;
 	uint8_t ucKQBuf[4] = {0xff, 0xff, 0xff, 0xff};
 	int8_t  ctBuf[2];
-	vUppGetBatDisplay( ); 
-	vUppGetCODisplay( );	  
-	vUppGetAhtDisplay(ctBuf);
-	vUppGetPMS7003Display( );
-	vUppGetHCHODisplay(ucKQBuf);
-	HAL_Delay(2000);
+	
+	do
+	{
+		vUppGetBatDisplay( ); 
+			  
+		vUppGetAhtDisplay(ctBuf);
+		vUppGetPMS7003Display( );
+//		vUppGetHCHODisplay(ucKQBuf);	
+		bGetSensorDone = bUppGetCODisplay( );
+		HAL_Delay(1000);
+	}while(!bGetSensorDone);
+	
+	return bGetSensorDone;
 }
 
 /**
@@ -343,34 +418,38 @@ void vUppSensorDisplay(void)
   */
 void vUppBeepDisplay(void)
 {
-	for(uint8_t ucTime = 0; ucTime < 5; ++ucTime)
-    {
-		/*****  输出低脉冲有效 450实际有效50 占空比是10% *****/
-		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 450);
-		HAL_Delay(100);
-		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 500);
-		HAL_Delay(100);
-		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 450);
-		HAL_Delay(100);
-		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 500);
-		HAL_Delay(600);
+	if(bSensorWarning)
+	{
+		bSensorWarning = false;
+		for(uint8_t ucTime = 0; ucTime < 5; ++ucTime)
+		{
+			/*****  输出低脉冲有效 450实际有效50 占空比是10% *****/
+			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 450);
+			HAL_Delay(100);
+			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 500);
+			HAL_Delay(100);
+			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 450);
+			HAL_Delay(100);
+			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 500);
+			HAL_Delay(600);
 		
 #if 0 ///呼吸灯节奏		
-		uint16_t pwmVal=0;   //PWM占空比  
-		while (pwmVal< 500)
-		{
-		  pwmVal++;
-		  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
-		  HAL_Delay(1);
-		}
-		while (pwmVal)
-		{
-		  pwmVal--;
-		  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
-		  HAL_Delay(1);
-		}
+			uint16_t pwmVal=0;   //PWM占空比  
+			while (pwmVal< 500)
+			{
+			  pwmVal++;
+			  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
+			  HAL_Delay(1);
+			}
+			while (pwmVal)
+			{
+			  pwmVal--;
+			  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
+			  HAL_Delay(1);
+			}
 #endif
-	}	
+		}	
+	}
 }
 
 /**
@@ -510,7 +589,7 @@ void vUppBoradDeInit(void)
 	HAL_UART_DeInit(&huart3);
 	huart3.gState = HAL_UART_STATE_RESET;	 
 		
-	GPIO_InitStructure.Pin = 0xFFFE;   
+	GPIO_InitStructure.Pin = 0xFFCE;   //PA0 PA4 PA5保持状态
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG; 
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -522,7 +601,7 @@ void vUppBoradDeInit(void)
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 					
-	GPIO_InitStructure.Pin = 0xDFF8;  /// PB13：KQ66_F
+	GPIO_InitStructure.Pin = 0xDFF7;  /// PB13：1.5V、PB0：5V、PB1：PMC7003_RST、PB2：PMC7003_SET
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
@@ -541,6 +620,9 @@ void vUppBoradDeInit(void)
   */
 void vUppIntoLowPower(void)
 {
+	BOARD_POWER_DIS;
+	POWER_5V_DIS;
+	
 	vTm1622Close( );
 	vUppBoradDeInit(); ///关闭时钟线
     	
@@ -614,6 +696,12 @@ void vUappBoradInit(void)
 
 	/* Initialize interrupts */
 	MX_NVIC_Init();
+	
+	BOARD_POWER_EN;
+	POWER_5V_EN;
+	/**** CO 5V 加热 ****/
+	MQ7_5V_EN;
+	ulMQ5vHeatTime = HAL_GetTick();
 	
 	/* USER CODE BEGIN 2 */
 	printf("RTC WAKEUP DOING\r\n");

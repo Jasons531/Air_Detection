@@ -10,6 +10,18 @@
 */ 
 #include "AdcHandle.h"
 
+/**** CO 5V加热时间 ****/
+uint32_t ulMQ5vHeatTime = 0;
+
+/**** CO 1.5V加热时间 ****/
+uint32_t ulMQ1v5HeatTime = 0;
+
+/**** CO 5V开始加热标志 ****/
+bool bMQHeatStart = false;
+
+/**** CO 5V加热完成标志 ****/
+bool bMQHeatDone = false;
+
 /**
   * 函数功能: 读取电池电量
   * 输入参数: 无
@@ -35,16 +47,6 @@ uint8_t ucAdcBattery(void)
 	return cBatteryPercent;
 }
 
-/**
-  * 函数功能: SM160预热
-  * 输入参数: 无
-  * 返 回 值: 无
-  * 说    明: 无
-  */
-void vSM160Heat(void)
-{
-	HAL_Delay(2000);
-}
 
 /**
   * 函数功能: 读取SM160

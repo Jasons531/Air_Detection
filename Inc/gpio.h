@@ -28,7 +28,15 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+	 
+/***** 主板电源 *****/	 
+#define	BOARD_POWER_EN 		HAL_GPIO_WritePin(BOARD_POWER_GPIO_Port, BOARD_POWER_Pin, GPIO_PIN_RESET)
+#define	BOARD_POWER_DIS 	HAL_GPIO_WritePin(BOARD_POWER_GPIO_Port, BOARD_POWER_Pin, GPIO_PIN_SET)	 
 
+/***** 5V电源：输出3.3V *****/
+#define	POWER_5V_EN 		HAL_GPIO_WritePin(EN_5V_GPIO_Port, EN_5V_Pin, GPIO_PIN_SET)
+#define	POWER_5V_DIS 		HAL_GPIO_WritePin(EN_5V_GPIO_Port, EN_5V_Pin, GPIO_PIN_RESET)	 
+	 
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */

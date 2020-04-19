@@ -18,15 +18,13 @@
 			
 #include "debug.h"
 #include <stdint.h>	
-#include "usart.h"
+#include "usart.h"		
 		
 typedef UART_t xKQUart_t;
 		
 extern xKQUart_t xKQUart;	
 
 void vKQInit(void);
-void vKQSleep(void);
-void vKQWakeup(void);
 void vKQReadSensor(uint8_t ucKQBuf[4]);
 		
 #ifdef __cplusplus
