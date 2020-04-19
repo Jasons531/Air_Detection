@@ -53,6 +53,8 @@
 
 /* USER CODE BEGIN PV */
 
+#define		SYSTIME		(3*60*1000U) //10分钟
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +70,8 @@ void MX_NVIC_Init(void);
 bool bUserAppSleep = false;
 extern bool bRtcSleepMode;
 
+uint32_t ulSysWorkTime = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -78,6 +82,7 @@ extern bool bRtcSleepMode;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  /**** 任务执行完成休眠状态 ****/
   bool bSleepMode = false;
   /* USER CODE END 1 */
   
@@ -111,11 +116,10 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  HAL_Delay(1000);
 
   BOARD_POWER_EN;
   POWER_5V_EN;
-  
+  HAL_Delay(100);
   /**** CO 5V 加热 ****/
   MQ7_5V_EN;
   ulMQ5vHeatTime = HAL_GetTick();
@@ -124,9 +128,13 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim16);
   printf("hello world\r\n");
   
-//  vKeyInit( );
-// 
-//  vKeyWorkStatusJudgment(  );
+  vKeyInit( );
+  vKeyWorkStatusJudgment(  );
+  
+  ulSysWorkTime = HAL_GetTick();
+  
+  init_tm1622(); 
+  vStaticDisplay( );
   vUappSensorInit( );
  
   /* USER CODE END 2 */
@@ -151,7 +159,7 @@ int main(void)
 			bUserAppSleep = true;
 			if(bUppSensorDisplay( ))
 			{
-				vUppRtcAlarm(ulCurrentSleepTime);
+				vUppRtcAlarm(ulCurrentSleepTime); 
 				vUppIntoLowPower( );
 			}		
 		}
@@ -160,10 +168,10 @@ int main(void)
 	{
 		printf("welcome\r\n");
 		bUserAppSleep = true;
-		if(bSleepMode)
+		if(bSleepMode && (HAL_GetTick()-ulSysWorkTime>SYSTIME)) ///目前常亮屏幕3分钟， 改SYSTIME
 		{
 			bSleepMode = false;
-			vUppRtcAlarm(60);
+			vUppRtcAlarm(60);    ///目前休眠60S 可以根据实际改
 			vUppIntoLowPower( );
 		}
 	}  

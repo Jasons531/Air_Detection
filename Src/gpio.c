@@ -54,7 +54,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LCD_WR_Pin|LCD_RD_Pin|LCD_CS_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(EN_5V_GPIO_Port, EN_5V_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, EN_5V_Pin|BOARD_POWER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PA0 PAPin */
   GPIO_InitStruct.Pin = GPIO_PIN_0;

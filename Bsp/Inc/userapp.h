@@ -39,6 +39,10 @@ extern uint32_t ulCurrentSleepTime;
 
 extern bool bSensorWarning;
 
+extern uint32_t ulSysWorkTime;
+
+extern bool bUserAppSleep;
+
 void vUppChargBatDisplay(uint8_t *cBatteryPercent);
 
 void vUappSensorInit(void);

@@ -44,6 +44,8 @@ void vKeyInit(void)
 void vKeyStandbyMode(void)
 {	
 	vTm1622Close( );
+	write_cmd_100(0x00);  //关闭系统振荡器
+	write_cmd_100(0x02);  //关闭LCD显示
 	vUppBoradDeInit(); ///关闭时钟线
 	
 	__HAL_RCC_PWR_CLK_ENABLE();		
@@ -98,10 +100,14 @@ bool bKeyStandbyCheckPwrkey(void)
 	{			
 		if(bUserAppSleep)
 		{
-			bUserAppSleep = false;
 			bRtcSleepMode = true;
 			vUappBoradInit( );
 			ulCurrentSleepTime = ulUppGetCurrentSleepRtc(  );
+			HAL_GPIO_WritePin(GPIOB, LCD_BACK_Pin, GPIO_PIN_SET);
+			write_cmd_100(0x01);  //打开系统振荡器
+			write_cmd_100(0x03);  //开启LCD显示
+			write_cmd_100(0x18);  //片内RC 32KHZ
+			write_cmd_100(0xe3);  //正常模式
 		}		
 		HAL_Delay(20);																//延迟一段时间再检测
 		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0) == GPIO_PIN_SET)			//检测到按下按键
@@ -120,7 +126,12 @@ bool bKeyStandbyCheckPwrkey(void)
 			upCnt++; 																//记录释放次数
 			if(upCnt>5)																//连续检测到释放超过5次
 			{
-				DEBUG_APP(2,"按下时间不足");		
+				DEBUG_APP(2,"按下时间不足");	
+				HAL_GPIO_WritePin(GPIOB, LCD_BACK_Pin, GPIO_PIN_SET);
+				write_cmd_100(0x01);  //打开系统振荡器
+				write_cmd_100(0x03);  //开启LCD显示
+				write_cmd_100(0x18);  //片内RC 32KHZ
+				write_cmd_100(0xe3);  //正常模式
 				while(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0) == GPIO_PIN_SET); ///等待按键释放
 				return false;									
 										//按下时间太短，不是按键长按操作
@@ -167,6 +178,22 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 		if(bKeyStandbyCheckPwrkey())
 		{
 			DEBUG(2,"关机 \r\n");
+			for(uint8_t ucTime = 0; ucTime < 3; ++ucTime)
+			{
+				uint16_t pwmVal=0;   //PWM占空比  
+				while (pwmVal< 150)
+				{
+				  pwmVal++;
+				  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
+				  HAL_Delay(1);
+				}
+				while (pwmVal)
+				{
+				  pwmVal--;
+				  __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pwmVal);    //修改比较值，修改占空比
+				  HAL_Delay(1);
+				}
+			}
 			vKeyStandbyMode();
 		}			 
 	}										

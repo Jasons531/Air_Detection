@@ -45,11 +45,11 @@ void vKQReadSensor(uint8_t ucKQBuf[4])
 			DEBUG(2,"%02X ",xKQUart.ucSensorBuf[ucI]);
 		}
 		DEBUG(2,"\r\n");
-		for(uint8_t ucI = 0; ucI < xKQUart.ucLen-3; ++ucI)
+		for(uint8_t ucI = 0; ucI < xKQUart.ucLen-1; ++ucI)
 		{
 			ucCrc += xKQUart.ucSensorBuf[ucI];
 		}
-		if(ucCrc == xKQUart.ucSensorBuf[xKQUart.ucLen-3])
+		if(ucCrc == xKQUart.ucSensorBuf[xKQUart.ucLen-1])
 		{
 			memcpy(ucKQBuf, &xKQUart.ucSensorBuf[1], 4);
 		}

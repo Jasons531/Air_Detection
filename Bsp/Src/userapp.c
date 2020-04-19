@@ -35,8 +35,6 @@ void vUappSensorInit(void)
 	vKQInit( );
 	vPMC7003Init(  );	
 	bAhtInit(  );
-	init_tm1622(); 
-    vStaticDisplay( );
 }
 
 /**
@@ -189,9 +187,8 @@ bool bUppGetCODisplay(void)
 	{
 		MQ7_5V_DIS;
 		MQ7_1V5_EN;
-		ulMQ1v5HeatTime = HAL_GetTick();
-		ulMQ5vHeatTime = HAL_GetTick();
 		
+		ulMQ1v5HeatTime = HAL_GetTick();
 		bMQHeatStart = true;
 		bMQHeatDone = true;		
 		DEBUG_APP(2,"**** bMQHeatDone ****");
@@ -199,10 +196,7 @@ bool bUppGetCODisplay(void)
 	if(bMQHeatDone && (HAL_GetTick() - ulMQ1v5HeatTime > MQ_1V5_HEAT_TIME))
 	{
 		DEBUG_APP(2,"**** ulMQ1v5HeatTime ****");
-		bMQHeatDone = false;
-		bMQHeatStart = false;
-		ulMQ1v5HeatTime = HAL_GetTick();
-		ulMQ5vHeatTime = HAL_GetTick();
+		
 		float fVrl = fAdcMQ();
 		MQ7_1V5_DIS;
 		if(fVrl>0)
@@ -398,11 +392,10 @@ bool bUppSensorDisplay(void)
 	
 	do
 	{
-		vUppGetBatDisplay( ); 
-			  
+		vUppGetBatDisplay( ); 			  
 		vUppGetAhtDisplay(ctBuf);
 		vUppGetPMS7003Display( );
-//		vUppGetHCHODisplay(ucKQBuf);	
+		vUppGetHCHODisplay(ucKQBuf);	
 		bGetSensorDone = bUppGetCODisplay( );
 		HAL_Delay(1000);
 	}while(!bGetSensorDone);
@@ -601,7 +594,7 @@ void vUppBoradDeInit(void)
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 					
-	GPIO_InitStructure.Pin = 0xDFF7;  /// PB13：1.5V、PB0：5V、PB1：PMC7003_RST、PB2：PMC7003_SET
+	GPIO_InitStructure.Pin = 0x9FF7;  /// PB13：1.5V、PB0：5V、PB1：PMC7003_RST、PB2：PMC7003_SET
 	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
 	GPIO_InitStructure.Pull = GPIO_PULLDOWN;
 	GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_LOW;	
@@ -632,8 +625,6 @@ void vUppIntoLowPower(void)
 	
 	/**** 休眠唤醒外设初始化 ****/
 	vUappSensorInit( );
-	init_tm1622(); 
-	vStaticDisplay( );
 }
 
 /**
@@ -701,7 +692,17 @@ void vUappBoradInit(void)
 	POWER_5V_EN;
 	/**** CO 5V 加热 ****/
 	MQ7_5V_EN;
-	ulMQ5vHeatTime = HAL_GetTick();
+	HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);
+    HAL_TIM_Base_Start_IT(&htim16);
+	if(bUserAppSleep)
+	{
+		bUserAppSleep = false;
+		bMQHeatDone = false;
+		bMQHeatStart = false;
+		ulMQ1v5HeatTime = HAL_GetTick();
+		ulMQ5vHeatTime = HAL_GetTick();
+		ulSysWorkTime = HAL_GetTick();
+	}
 	
 	/* USER CODE BEGIN 2 */
 	printf("RTC WAKEUP DOING\r\n");
