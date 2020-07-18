@@ -53,7 +53,7 @@
 
 /* USER CODE BEGIN PV */
 
-#define		SYSTIME		(3*60*1000U) //10分钟
+#define		SYSTIME		(10*60*1000U) //10分钟
 
 /* USER CODE END PV */
 
@@ -121,7 +121,7 @@ int main(void)
   POWER_5V_EN;
   HAL_Delay(100);
   /**** CO 5V 加热 ****/
-  MQ7_5V_EN;
+//  MQ7_5V_EN;
   ulMQ5vHeatTime = HAL_GetTick();
   
   HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);

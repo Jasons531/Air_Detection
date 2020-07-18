@@ -35,7 +35,7 @@
 #define	MQ7_1V5_DIS 		HAL_GPIO_WritePin(MQ7_1V5_GPIO_Port, MQ7_1V5_Pin, GPIO_PIN_RESET)
 		
 #define MQ_5V_HEAT_TIME		60 * 1000 ///1min
-#define MQ_1V5_HEAT_TIME	30 * 1000 ///1min
+#define MQ_1V5_HEAT_TIME	92 * 1000 ///1min
 		
 extern uint32_t ulMQ5vHeatTime;
 extern uint32_t ulMQ1v5HeatTime;

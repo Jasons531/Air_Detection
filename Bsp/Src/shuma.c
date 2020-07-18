@@ -19,7 +19,7 @@
   */
 void vStaticDisplay(void)
 {
-	CODIS;			
+	//CODIS;			
 	TEMPDIS;		
 	PPMDIS;			
 	HUMDIS;			

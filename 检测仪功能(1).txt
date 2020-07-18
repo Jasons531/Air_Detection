@@ -1,0 +1,75 @@
+1、增加电池充电状态 ：完成
+2、增加1.5V加热电压
+
+
+
+1、PA1定义为电池充电状态检测，低电平为充电、高电平为充满。（MCU需内部做上拉输入模式）
+2、PB0 为MQ7加热控制5V（高电平加热）
+3、PB13为MQ7加热控制1.5V（高电平加热）两个加热电压禁止同时打开
+4、PA5 为主电源控制开关（低电平打开供电）
+5、PA4 为5V升压电源控制开关（高电平打开供电）
+
+
+已初始化：PA1 PA4 PA5 PB0
+
+完成: PA1、PA5 PA4 
+
+甲醛报警、按键声音、CO R0标定、休眠加热IO默认拉低
+待完成：按键声音
+
+App:..\Bsp\Src\userapp.c,line : 202,fR0 = 47.91 fPpm = 10.00
+App:..\Bsp\Src\userapp.c,line : 202,fR0 = 57.71 fPpm = 10.00
+
+60+30
+[11:32:28.599]收←◆..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1525 , adc0 = 829, MQ = 667.62mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 0.67
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 82.22 fPpm = 10.00
+
+[11:35:30.100]收←◆A
+[11:35:30.118]收←◆pp:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1524 , adc0 = 1140, MQ = 918.68mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 0.92
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 54.05 fPpm = 10.00
+
+[11:37:00.865]收←◆App:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1523 , adc0 = 1264, MQ = 1019.28mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 1.02
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 46.66 fPpm = 10.00
+
+[11:38:31.632]收←◆App:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1522 , adc0 = 1373, MQ = 1107.90mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 1.11
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 41.26 fPpm = 10.00
+
+[11:40:02.397]收←◆App:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1523 , adc0 = 1467, MQ = 1182.97mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 1.18
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 37.32 fPpm = 10.00
+
+[11:41:33.164]收←◆App:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1522 , adc0 = 1549, MQ = 1249.92mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 1.25
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 34.20 fPpm = 10.00
+
+[11:43:03.948]收←◆pp:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1523 , adc0 = 1617, MQ = 1303.93mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 1.30
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 31.92 fPpm = 10.00
+
+
+60+90
+[11:47:58.269]收←◆App:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1524 , adc0 = 425, MQ = 342.49mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 0.34
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 180.07 fPpm = 10.00
+
+[11:50:30.269]收←◆App:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1522 , adc0 = 661, MQ = 533.37mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 0.53
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 108.17 fPpm = 10.00
+
+[11:53:02.272]收←◆A
+[11:53:02.290]收←◆pp:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1524 , adc0 = 868, MQ = 699.49mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 0.70
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 77.53 fPpm = 10.00
+
+[11:53:02.272]收←◆A
+[11:53:02.290]收←◆pp:..\Bsp\Src\AdcHandle.c,line : 94,BAT = 1524 adc17 = 1524 , adc0 = 868, MQ = 699.49mV
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 0.70
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 77.53 fPpm = 10.00
+
+App:..\Bsp\Src\AdcHandle.c,line : 95,MQ-7 = 0.98
+App:..\Bsp\Src\userapp.c,line : 204,fR0 = 49.45 fPpm = 10.00
+

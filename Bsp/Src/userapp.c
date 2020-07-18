@@ -186,7 +186,8 @@ bool bUppGetCODisplay(void)
 	if(!bMQHeatStart && (HAL_GetTick() - ulMQ5vHeatTime > MQ_5V_HEAT_TIME))
 	{
 		MQ7_5V_DIS;
-		MQ7_1V5_EN;
+		HAL_Delay(1000);
+	//	MQ7_1V5_EN;
 		
 		ulMQ1v5HeatTime = HAL_GetTick();
 		bMQHeatStart = true;
@@ -196,9 +197,13 @@ bool bUppGetCODisplay(void)
 	if(bMQHeatDone && (HAL_GetTick() - ulMQ1v5HeatTime > MQ_1V5_HEAT_TIME))
 	{
 		DEBUG_APP(2,"**** ulMQ1v5HeatTime ****");
-		
-		float fVrl = fAdcMQ();
-		MQ7_1V5_DIS;
+		/**** 1V5循环交替加热 *****/
+//		MQ7_5V_DIS;
+//		MQ7_1V5_EN;
+//		HAL_Delay(3000);
+//		MQ7_1V5_DIS;
+		float fVrl = fAdcMQ();	
+			
 		if(fVrl>0)
 		{
 			float fRS = (3.3f - fVrl) / fVrl * RL;
@@ -214,6 +219,9 @@ bool bUppGetCODisplay(void)
 			{
 				float fPpm = 98.322f * pow(fRS/fR0, -1.458f);
 				DEBUG_APP(2,"fR0 = %.2f fPpm = %.2f",fR0,fPpm);
+				
+				if(fPpm<10)
+					fPpm = 10;
 				
 				vCODisplay(45, fPpm/100);  ///百位
 				vCODisplay(43, (uint8_t)fPpm%100/10);  ///十位
@@ -396,7 +404,8 @@ bool bUppSensorDisplay(void)
 		vUppGetAhtDisplay(ctBuf);
 		vUppGetPMS7003Display( );
 		vUppGetHCHODisplay(ucKQBuf);	
-		bGetSensorDone = bUppGetCODisplay( );
+		//bGetSensorDone = bUppGetCODisplay( );
+		bGetSensorDone = true;
 		HAL_Delay(1000);
 	}while(!bGetSensorDone);
 	
@@ -615,6 +624,7 @@ void vUppIntoLowPower(void)
 {
 	BOARD_POWER_DIS;
 	POWER_5V_DIS;
+	MQ7_1V5_DIS;
 	
 	vTm1622Close( );
 	vUppBoradDeInit(); ///关闭时钟线
@@ -678,6 +688,8 @@ void vUappBoradInit(void)
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	MX_GPIO_Init();
+	///PM2.5失能复位
+	HAL_GPIO_WritePin(GPIOB, PMC7003_RST_Pin, GPIO_PIN_SET);
 	MX_ADC_Init();
 	MX_I2C1_Init();
 	MX_USART1_UART_Init();
@@ -691,7 +703,7 @@ void vUappBoradInit(void)
 	BOARD_POWER_EN;
 	POWER_5V_EN;
 	/**** CO 5V 加热 ****/
-	MQ7_5V_EN;
+//	MQ7_5V_EN;
 	HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);
     HAL_TIM_Base_Start_IT(&htim16);
 	if(bUserAppSleep)
